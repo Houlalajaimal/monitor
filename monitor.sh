@@ -25,7 +25,7 @@
 # ----------------------------------------------------------------------------------------
 
 #VERSION NUMBER
-export version=0.2.200
+export version=0.2.201
 
 if [ -z ${NO_COLOR} -o -z ${NOCOLOR} ] ; then
 	#COLOR OUTPUT FOR RICH OUTPUT
@@ -1765,48 +1765,7 @@ while true; do
 		#**********************************************************************
 
 		#REPORT RSSI CHANGES
-		if [ -n "$rssi" ] && [ "${#rssi}" -lt "5" ] && [ "$uptime" -gt "$PREF_STARTUP_SETTLE_TIME" ]; then 
 
-			#ONLY FOR PUBLIC OR BEAON DEVICES
-			if [ "$cmd" == "PUBL" ] || [ "$cmd" == "BEAC" ]; then 
-
-				#SET RSSI LATEST IF NOT ALREADY SET 
-				rssi_latest=${rssi_latest:--200}
-
-				#IS RSSI THE SAME? 
-				rssi_change=$((rssi - rssi_latest))
-				abs_rssi_change=${rssi_change#-}
-
-				#DETERMINE MOTION DIRECTION
-				motion_direction="depart"
-				[ "$rssi_change" == "$abs_rssi_change" ] && motion_direction="approach"
-
-				#IF POSITIVE, APPROACHING IF NEGATIVE DEPARTING
-				case "1" in
-					$(( abs_rssi_change >= 50)) )
-						change_type="fast $motion_direction"
-						;;
-					$(( abs_rssi_change >= 30)) )
-						change_type="moderate $motion_direction"
-						;;
-					$(( abs_rssi_change >= 10)) )
-						change_type="slow movement $motion_direction"
-						;;
-					$(( abs_rssi_change >= 3)) )
-						change_type="drifting"
-						;;			
-					*)
-						change_type="stationary"
-						;;	
-				esac
-
-				#WITHOUT ANY DATA OR INFORMATION, MAKE SURE TO REPORT
-				[ "$rssi_latest" == "-200" ] && change_type="initial reading" && should_update=true
-
-				#ONLY PRINT IF WE HAVE A CHANCE OF A CERTAIN MAGNITUDE
-				[ -z "${blacklisted_devices[$mac]}" ] && [ "$abs_rssi_change" -gt "$PREF_RSSI_CHANGE_THRESHOLD" ] && log "${CYAN}[CMD-RSSI]	${NC}$cmd $mac ${GREEN}${NC}RSSI: ${rssi:-100} dBm ($change_type | $abs_rssi_change dBm) ${NC}" && should_update=true
-			fi
-		fi 
 
 		#**********************************************************************
 		#
